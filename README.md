@@ -262,12 +262,11 @@ Navigate to the correct directory:
 ```
 cd $RNA_HOME/de/ballgown/ref_only
 ```
-Then launch R continue with following [Tutorial_Part2_ballgown.R]() to create pdf output that contains
-[visualization of ballgown DE]().
+Then launch R continue with following [Tutorial_Part2_ballgown.R](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/blob/main/Tutorial_Part2_ballgown.R) to create pdf output that contains [visualization of ballgown DE]().
 
 ### Supplementary R Analysis
 Occasionally you may wish to reformat and work with stringtie output in R manually.
-Therefore we can follow this [optional/advanced tutorial]() on how to format our results for R and perform "old school" (non-ballgown analysis) on our data. the output of this tuttorial is going to be a pdf that contains a [visualization of stringtie output]().
+Therefore we can follow this [optional/advanced tutorial](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/blob/main/Tutorial_Supplementary_R.R) on how to format our results for R and perform "old school" (non-ballgown analysis) on our data. the output of this tuttorial is going to be a pdf that contains a [visualization of stringtie output]().
 
 ## Variation Pipeline:
 To perform Variant Analysis Pipeline first we need to load rnasqemut in our working directory.
@@ -376,4 +375,4 @@ Certain types of high-throughput experiments (e.g. RNA seq) return sets of genes
 
 Then I am going to use the KEGG PATHWAY database for grouping genes into "pathways" which are basically lists of genes participating in the same biological process.
 
-You can find related codes in [Enrichment_Analysis.R](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/blob/main/Enrichment_Analysis.R)file.
+You can find related codes in [Enrichment_Analysis.R](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/blob/main/Enrichment_Analysis.R) file.
