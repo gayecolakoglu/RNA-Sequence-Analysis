@@ -22,33 +22,33 @@ In the coding part, I am going to follow the repository of Griffith lab for [Env
 
 Getting fastq files from .sra files which are inside SRR files
 ```
-	fastq-dump SRR12424243 --split-files
-	fastq-dump SRR12424244 --split-files
-	fastq-dump SRR12424245 --split-files
-	fastq-dump SRR12424255 --split-files
-	fastq-dump SRR12424256 --split-files
-	fastq-dump SRR12424257 --split-files
+fastq-dump SRR12424243 --split-files
+fastq-dump SRR12424244 --split-files
+fastq-dump SRR12424245 --split-files
+fastq-dump SRR12424255 --split-files
+fastq-dump SRR12424256 --split-files
+fastq-dump SRR12424257 --split-files
 ```
 
 We got 1 fastq file for each SRR because our samples are single strand if else we will get 2 fastq file for each SRR
 
 To examine fastq files get FastQC report for each sample
 ```
-	fastqc *.fastq
+fastqc *.fastq
 ```
 
 Generate a single summary report across all samples which is MultiQC report
 ```
-	 multiqc . 
+multiqc . 
 ```
 
 Since we do not have any adapter contamination we do not have to perform felxbar trim but here trim code(for two strands) just to know
 ```
-	$RNA_HOME/student_tools/flexbar-3.4.0-linux/flexbar --adapter-min-overlap 7
-	--adapter-trim-end RIGHT --adapters $RNA_REFS_DIR/illumina_multiplex.fa
-	--pre-trim-left 13 --max-uncalled 300 --min-read-length 25 --threads 8 --zip-output
-	GZ --reads $RNA_DATA_DIR2/SRR12424243/SRR12424243_1.fastq --reads2
-	$RNA_DATA_DIR2/SRR12424243/SRR12424243_2.fastq --target $RNA_DATA_TRIM/SRR12424243
+$RNA_HOME/student_tools/flexbar-3.4.0-linux/flexbar --adapter-min-overlap 7
+--adapter-trim-end RIGHT --adapters $RNA_REFS_DIR/illumina_multiplex.fa
+--pre-trim-left 13 --max-uncalled 300 --min-read-length 25 --threads 8 --zip-output
+GZ --reads $RNA_DATA_DIR2/SRR12424243/SRR12424243_1.fastq --reads2
+$RNA_DATA_DIR2/SRR12424243/SRR12424243_2.fastq --target $RNA_DATA_TRIM/SRR12424243
  ```
  
  ## RNA-seq Pipeline
@@ -72,12 +72,12 @@ hisat2 -p 16 --rg-id=SRR12424257 --rg SM:INFECTED --rg LB:SRR12424257-INFECTED -
 
 convert .sam files to .bam files and sort by aligned position 
 ```
-	samtools sort -@ 8 -o SRR12424243.bam SRR12424243.sam
-	samtools sort -@ 8 -o SRR12424244.bam SRR12424244.sam 
-	samtools sort -@ 8 -o SRR12424245.bam SRR12424245.sam 
-	samtools sort -@ 8 -o SRR12424255.bam SRR12424255.sam
-	samtools sort -@ 8 -o SRR12424256.bam SRR12424256.sam
-	samtools sort -@ 8 -o SRR12424257.bam SRR12424257.sam
+samtools sort -@ 8 -o SRR12424243.bam SRR12424243.sam
+samtools sort -@ 8 -o SRR12424244.bam SRR12424244.sam 
+samtools sort -@ 8 -o SRR12424245.bam SRR12424245.sam 
+samtools sort -@ 8 -o SRR12424255.bam SRR12424255.sam
+samtools sort -@ 8 -o SRR12424256.bam SRR12424256.sam
+samtools sort -@ 8 -o SRR12424257.bam SRR12424257.sam
 ```
 
 Perform FastQC and MultiQC to .bam files
@@ -212,5 +212,168 @@ Let’s view that file:
 ```
 cat NORMAL_vs_INFECTED.csv
 ```
-Then start an R session where we will examine the NORMAL_vs_INFECTED.csv. You can reach the code by [Tutorial_Part1_ballgown.R]()
+Then start an R session where we will examine the NORMAL_vs_INFECTED.csv. You can reach the code by [Tutorial_Part1_ballgown.R](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/blob/main/Tutorial_Part1_ballgown.R)
+```
+R
+```
+To summarize briefly what we do in Tutorial Part1 ballgown.R:
+- Load ballgown data structure
+- Perform differential expression (DE) analysis with no filtering
+- Filter low-abundance genes. Remove all transcripts with a variance across the
+samples of less than one because they are not suffucient counts for a meaningful
+analysis.
+- Perform differential expression (DE) analysis now using filtered data
+- Identify the significant genes in filtered data with p-value < 0.05
+- Get the genes with the lowest p-value among those whose fold-change exceeds the threshold
 
+After Tuttorial, we can sort result by their p-value increasing and store the top20 gene ID:
+```
+grep -v feature NORMAL_vs_INFECTED_gene_results_sig.tsv | sort -nk 4 | head -n 20
+```
+Save all genes with P<0.05 to a new file.
+```
+grep -v feature NORMAL_vs_INFECTED_gene_results_sig.tsv | cut -f 6 | sed 's/\"//g' > DE_genes.txt
+```
+
+### edgeR Analysis
+- edgeR is a bioconductor package designed specifically for differential expression of
+count-based RNA-seq data
+- This is an alternative to using stringtie/ballgown to find differentially expressed genes
+We are going to make use of the raw counts we generated above using htseq-count.
+Let’s create a directory for results:
+```
+cd $RNA_HOME/
+mkdir -p de/htseq_counts
+cd de/htseq_counts
+```
+Create a mapping file to go from ENSG IDs (which htseq-count output) to Symbols:
+```
+perl -ne 'if ($_ =~ /gene_id\s\"(ENSG\S+)\"\;/) { $id = $1; $name = undef; if ($_ =~
+/gene_name\s\"(\S+)"\;/) { $name = $1; }; }; if ($id && $name) {print "$id\t$name\n";} if
+($_=~/gene_id\s\"(ERCC\S+)\"/){print "$1\t$1\n";}' $RNA_REF_GTF | sort | uniq >
+ENSG_ID2Name.txt
+```
+Then we can continue with R session by following [Tutorial_edgeR.R](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/blob/main/Tutorial_edgeR.R)
+Once we have run the edgeR tutorial, compare the sigDE genes to those saved earlier from cuffdiff
+
+## DE Visualization
+### Ballgown DE Visualization
+Navigate to the correct directory:
+```
+cd $RNA_HOME/de/ballgown/ref_only
+```
+Then launch R continue with following [Tutorial_Part2_ballgown.R]() to create pdf output that contains
+[visualization of ballgown DE]().
+
+### Supplementary R Analysis
+Occasionally you may wish to reformat and work with stringtie output in R manually.
+Therefore we can follow this [optional/advanced tutorial]() on how to format our results for R and perform "old school" (non-ballgown analysis) on our data. the output of this tuttorial is going to be a pdf that contains a [visualization of stringtie output]().
+
+## Variation Pipeline:
+To perform Variant Analysis Pipeline first we need to load rnasqemut in our working directory.
+Rnaseqmut is a program to detect variants (or mutations, including SNPs, indels) from RNA-Seq BAM files. It offers the following features:
+- Perform de-novo mutation discovery from a given BAM file.
+- For a user-defined mutation list, calculate the read coverage, including reads that support
+reference allele (reference reads) and alternative allele (alternative reads), from a given BAM
+file.
+- For a series of RNA-Seq samples, filter interesting mutations based on user-defined criteria.
+```
+cd $RNA_HOME
+git clone https://github.com/davidliwei/rnaseqmut/
+cp $RNA_HOME/rnaseqmut/bin/rnaseqmut.linux.x64
+$RNA_HOME/student_tools/rnaseqmut/bin/rnaseqmut
+cd rnaseqmut/demo/data
+```
+- Then remove all .bam and .bai files because we are going to add our .bam and .bai files.
+```
+rm *.ba?
+```
+- check out the sam files
+```
+for i in $(ls $RNA_HOME/alignments2/hisat2/*.sam ) 
+do
+echo item:$i
+done
+```
+- check out the sam file headers
+```
+for i in $(ls $RNA_HOME/alignments2/hisat2/*.sam  | tr -s '/.' ' ' | awk '{print $(NF-1)}') 
+do
+echo item:$i
+done
+```
+- Create bam files from the sam files and index to create the bai files
+```
+for i in $(ls $RNA_HOME/alignments/hisat2/*_*.sam | tr -s '/.' ' ' | awk '{print $(NF-1)}')
+do
+samtools sort $RNA_HOME/alignments/hisat2/$i.sam > $i.bam
+samtools index $i.bam
+echo indexing of $i finished
+done
+```
+- Run rnaseqmut on the bam files and produce the filtered snps (vcf files)
+```
+cd rnaseqmut/demo
+./rundemo.sh
+```
+- Take a look at the found variations
+```
+nano results/ALLMUT_FILTERED.vcf
+```
+- Annotate your vcf using Annovar
+```
+grep -n chrom ALLMUT_FILTERED.vcf
+wc -l ALLMUT_FILTERED.vcf
+```
+- tail -n the number of lines after #chrom or grep -v '#' ALLMUT_FILTERED.vcf (our tail is 63)
+```
+awk '{FS="\t";print $1"\t"$2"\t"$3"\t"$4"\t"$5"\t"$6"\t.\t"$7}'
+ALLMUT_FILTERED.vcf | tail -63 > ALLMUT_FILTERED.filtercoladded.vcf
+```
+ANNOVAR (ANNOtate VARiation) is a bioinformatics software tool for the interpretation and prioritization of single nucleotide variants (SNVs), insertions, deletions, and copy number variants (CNVs) of a given genome
+- For annovar, first download a few annotation databases
+```
+cd $RNA_HOME/annovar
+perl annotate_variation.pl -buildver hg38 -downdb -webfrom annovar refGene humandb/
+perl annotate_variation.pl -buildver hg38 -downdb cytoBand humandb/
+perl annotate_variation.pl -buildver hg38 -downdb genomicSuperDups humandb/
+perl annotate_variation.pl -buildver hg38 -downdb -webfrom annovar esp6500siv2_all
+humandb/
+perl annotate_variation.pl -buildver hg38 -downdb -webfrom annovar 1000g2015aug
+humandb/
+perl annotate_variation.pl -buildver hg38 -downdb -webfrom annovar exac03 humandb/
+perl annotate_variation.pl -buildver hg38 -downdb -webfrom annovar avsnp150 humandb/
+perl annotate_variation.pl -buildver hg38 -downdb -webfrom annovar dbnsfp30a humandb/
+perl annotate_variation.pl -buildver hg38 -downdb -webfrom annovar clinvar_20200316
+humandb/
+perl annotate_variation.pl -buildver hg38 -downdb -webfrom annovar cosmic70 humandb/
+```
+- Run annovar on the 6 variants we found to check if they exist in any of the databases
+```
+perl table_annovar.pl ../rnaseqmut/demo/results/ALLMUT_FILTERED.filtercoladded.vcf
+humandb/ -buildver hg38 -out myanno -remove -protocol
+refGene,cytoBand,genomicSuperDups,esp6500siv2_all,1000g2015aug_all,1000g2015aug_e
+ur,exac03,avsnp150,dbnsfp30a,cosmic70,clinvar_20200316 -operation g,r,r,f,f,f,f,f,f,f,f
+-nastring . -vcfinput
+cp myanno.hg38_multianno.txt myanno.hg38_multianno.tsv
+libreoffice myanno.hg38_multianno.tsv
+```
+Because VCF is a locus descriptor, there are several consequences. First, there is no line-to-line correspondence with variants. Since multiple variants can be in the same locus, one line in VCF file can in principle describe multiple variants (including wildtype non-variant allele), and multiple types of genotype calls when genotype information is available. So in one single line, several insertions and deletions and a single-nucleotide variant (SNV) are all might present.
+I have filtered the annovar output according to the following conditions:
+- Since UTR regions are noncoding region we are going to focus on exonic and non-synonymous regions.
+- The SIFT score ranges from 0.0 (deleterious) to 1.0 (tolerated). The score can be interpreted as follows: 0.0 to 0.05 -- Variants with scores in this range are considered deleterious. Therefore, sort by SIFT_score and take the top20 genes which SIFT_score is smaller than 0.05
+- Choose the genes that have 1000g is “.” . The reason we want them to be "." is because they are not found in the human genome. Because these genes are variants, they would not be expected in the human genome.
+
+After filtering, this is our [annovar output]()
+
+## Gene Set Enrichment Analysis:
+GSEA is a computational method to determine whether an a priori defined set of genes shows a statistically significant difference between biological samples. This method is used to identify classes of genes or proteins that are over-represented in a large set of genes or proteins; these classes may have an association with biological functions or disease phenotypes.
+
+I am going to use the ClusterProfiler library for over-representation test and gene set enrichment analysis of Gene Ontology. The
+Gene Ontology (GO) is a database that provides a system for hierarchically classifying genes or gene products into terms organized in a graph structure (or anontology).
+
+Certain types of high-throughput experiments (e.g. RNA seq) return sets of genes that are over or under-expressed. The GO can be used to functionally profile this set of genes, to determine which GO terms appear more frequently than would be expected by chance when examining the set of terms annotated to the input genes.
+
+Then I am going to use the KEGG PATHWAY database for grouping genes into "pathways" which are basically lists of genes participating in the same biological process.
+
+You can find related codes in [Enrichment_Analysis.R](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/blob/main/Enrichment_Analysis.R)file.
