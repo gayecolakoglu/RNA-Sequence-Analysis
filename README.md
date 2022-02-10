@@ -262,7 +262,7 @@ Navigate to the correct directory:
 ```
 cd $RNA_HOME/de/ballgown/ref_only
 ```
-Then launch R continue with following [Tutorial_Part2_ballgown.R](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/blob/main/Tutorial_Part2_ballgown.R) to create pdf output that contains [visualization of ballgown DE](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/blob/main/AllOutputs/Tutorial_Part2_ballgown_output.pdf).
+Then launch R continue with following [Tutorial_Part2_ballgown.R](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/blob/main/Tutorial_Part2_ballgown.R) to create pdf output that contains visualization of ballgown DE.
 
 ### Supplementary R Analysis
 Occasionally you may wish to reformat and work with stringtie output in R manually.
