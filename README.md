@@ -37,7 +37,7 @@ To examine fastq files get FastQC report for each sample
 fastqc *.fastq
 ```
 
-Generate a single summary report across all samples which is [MultiQC](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/blob/main/AllOutputs/MultiQC_for_fastq.pdf) report
+Generate a single summary report across all samples which is MultiQC report
 ```
 multiqc . 
 ```
@@ -80,7 +80,7 @@ samtools sort -@ 8 -o SRR12424256.bam SRR12424256.sam
 samtools sort -@ 8 -o SRR12424257.bam SRR12424257.sam
 ```
 
-Perform FastQC and [MultiQC](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/blob/main/AllOutputs/MultiQC_for_bam.pdf) to .bam files
+Perform FastQC and MultiQC to .bam files
 ```
 fastqc *.bam
 multiqc .
@@ -226,7 +226,7 @@ analysis.
 - Identify the significant genes in filtered data with p-value < 0.05
 - Get the genes with the lowest p-value among those whose fold-change exceeds the threshold
 
-After Tuttorial, we can sort result by their p-value increasing and store the [DE top20 gene](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/blob/main/AllOutputs/Top20DE.txt) ID:
+After Tuttorial, we can sort result by their p-value increasing and store the DE top20 gene ID:
 ```
 grep -v feature NORMAL_vs_INFECTED_gene_results_sig.tsv | sort -nk 4 | head -n 20
 ```
@@ -266,7 +266,7 @@ Then launch R continue with following [Tutorial_Part2_ballgown.R](https://github
 
 ### Supplementary R Analysis
 Occasionally you may wish to reformat and work with stringtie output in R manually.
-Therefore we can follow this [optional/advanced tutorial](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/blob/main/Tutorial_Supplementary_R.R) on how to format our results for R and perform "old school" (non-ballgown analysis) on our data. the output of this tuttorial is going to be a pdf that contains a [visualization of stringtie output](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/blob/main/AllOutputs/Tutorial_Part3_Supplementary_R_output.pdf).
+Therefore we can follow this [optional/advanced tutorial](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/blob/main/Tutorial_Supplementary_R.R) on how to format our results for R and perform "old school" (non-ballgown analysis) on our data. the output of this tuttorial is going to be a pdf that contains a visualization of stringtie output.
 
 ## Variation Pipeline:
 To perform Variant Analysis Pipeline first we need to load rnasqemut in our working directory.
@@ -363,7 +363,6 @@ I have filtered the annovar output according to the following conditions:
 - The SIFT score ranges from 0.0 (deleterious) to 1.0 (tolerated). The score can be interpreted as follows: 0.0 to 0.05 -- Variants with scores in this range are considered deleterious. Therefore, sort by SIFT_score and take the top20 genes which SIFT_score is smaller than 0.05
 - Choose the genes that have 1000g is “.” . The reason we want them to be "." is because they are not found in the human genome. Because these genes are variants, they would not be expected in the human genome.
 
-After filtering, this is our [annovar output](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/tree/main/AllOutputs/AnnovarOutput)
 
 ## Gene Set Enrichment Analysis:
 GSEA is a computational method to determine whether an a priori defined set of genes shows a statistically significant difference between biological samples. This method is used to identify classes of genes or proteins that are over-represented in a large set of genes or proteins; these classes may have an association with biological functions or disease phenotypes.
@@ -377,4 +376,3 @@ Then I am going to use the KEGG PATHWAY database for grouping genes into "pathwa
 
 You can find related codes in [Enrichment_Analysis.R](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/blob/main/Enrichment_Analysis.R) file.
 
-Also you can find the output of GSEA for [Annovar](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/tree/main/AllOutputs/GSEA_Annovar) and top [DE](https://github.com/gayecolakoglu/RNA-Sequence-Analysis/tree/main/AllOutputs/GSEA_6DE) genes. 
