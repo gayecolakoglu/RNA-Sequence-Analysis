@@ -16,12 +16,12 @@ In the coding part, I am going to follow the repository of Griffith lab for [Env
 
 Getting fastq files from .sra files which are inside SRR files
 ```
-fastq-dump SRR12424243 --split-files
-fastq-dump SRR12424244 --split-files
-fastq-dump SRR12424245 --split-files
-fastq-dump SRR12424255 --split-files
-fastq-dump SRR12424256 --split-files
-fastq-dump SRR12424257 --split-files
+fastq-dump SRR --split-files
+fastq-dump SRR --split-files
+fastq-dump SRR --split-files
+fastq-dump SRR --split-files
+fastq-dump SRR --split-files
+fastq-dump SRR --split-files
 ```
 
 We got 1 fastq file for each SRR because our samples are single strand if else we will get 2 fastq file for each SRR
