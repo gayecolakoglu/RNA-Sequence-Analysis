@@ -1,8 +1,7 @@
 # RNA-Sequence-Analysis
 
 ## Abstract
-In this project, I am going to try to characterize natural mutations found in HCoV-229E variants. The
-data that have been used in that project can be obtained from [here](https://www.ncbi.nlm.nih.gov/Traces/study/?acc=PRJNA656274&o=acc_s%3Aa). This data provided by monitoring the cells that were infected with 0.01 multiplicity of infection (MOI) of HCoV-229E virus.
+In this project, I am going to try to characterize natural mutations found in HCoV-229E variants. This data provided by monitoring the cells that were infected with 0.01 multiplicity of infection (MOI) of HCoV-229E virus.
 
 Then total RNA was extracted at 0, 6, 24, 48, and 72 post-HCoV-229E infection. At each time point,
 three biological repeats were tested.
@@ -11,11 +10,6 @@ Samples in the dataset were downloaded in fastq format. These fastq format files
 
 Six samples have been chosen from fifteen samples of High throughput sequencing (3 normal, 3 diseases). Considering that this will be the time when the disease is most advanced, the cell sample that was kept for 72 hours was selected.
 
-We can obtain detailed information about the project and data with the following accession numbers and URL links.
-- PMC: [PMC7906355](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7906355/)
-- BioProject: [PRJNA656274](https://www.ncbi.nlm.nih.gov//bioproject/PRJNA656274) (same PRJN for normal/controls)
-- GEO: [GSE155986](https://www.ncbi.nlm.nih.gov//geo/query/acc.cgi?acc=GSE155986)
-- SRA: [SRP276927](https://trace.ncbi.nlm.nih.gov/Traces/sra/?study=SRP276927)
 
 ## Pre-processing
 In the coding part, I am going to follow the repository of Griffith lab for [Environment](https://github.com/griffithlab/rnaseq_tutorial/wiki/Environment) and [Installation](https://github.com/griffithlab/rnaseq_tutorial/wiki/Installation).
